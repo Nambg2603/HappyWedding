@@ -1,5 +1,15 @@
-// Dữ liệu ảnh cho gallery
-const galleryImages = [
+// ==============================================
+// CONFIGURATION - THAY ĐỔI CÁC THÔNG SỐ DƯỚI ĐÂY
+// ==============================================
+
+// 1. CẤU HÌNH GOOGLE SHEETS API
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr08wAa0vx3odkuxM05NcgZfD19QP0cqtFTuUk0q_uXpX7S2K8JF2v8Cd9Sr2pkiTQtg/exec';
+
+// 2. CẤU HÌNH NGÀY CƯỚI (Năm, Tháng-1, Ngày, Giờ, Phút, Giây)
+const WEDDING_DATE = new Date(2025, 11, 31, 14, 0, 0); // Tháng 11 là tháng 12
+
+// 3. DỮ LIỆU ẢNH CHO GALLERY
+const GALLERY_IMAGES = [
     { src: 'assets/images/gallery1.jpg', category: 'prewedding', title: 'Ảnh cưới 1' },
     { src: 'assets/images/gallery2.jpg', category: 'prewedding', title: 'Ảnh cưới 2' },
     { src: 'assets/images/gallery3.jpg', category: 'engagement', title: 'Tiệc đính hôn 1' },
@@ -14,27 +24,28 @@ const galleryImages = [
     { src: 'assets/images/gallery12.jpg', category: 'candid', title: 'Khoảnh khắc tự nhiên 3' }
 ];
 
-// Dữ liệu lời chúc mẫu
-const sampleWishes = [
-    { name: 'Minh Anh', message: 'Chúc hai em trăm năm hạnh phúc! Tình yêu đẹp như mơ sẽ mãi bền lâu.', date: '10.10.2023' },
-    { name: 'Quang Huy', message: 'Chúc mừng hạnh phúc của hai bạn! Mong rằng tình yêu của hai bạn sẽ ngày càng đơm hoa kết trái.', date: '09.10.2023' },
-    { name: 'Thu Hà', message: 'Thật hạnh phúc khi được chứng kiến tình yêu của hai bạn. Chúc các bạn mãi mãi bên nhau!', date: '08.10.2023' }
-];
+// ==============================================
+// BIẾN TOÀN CỤC
+// ==============================================
 
-// Biến toàn cục
 let currentFilter = 'all';
 let visibleImages = 8;
-let map, modalMap;
-let wishes = [...sampleWishes];
 
-// Khởi tạo khi trang tải xong
+// ==============================================
+// HÀM KHỞI TẠO CHÍNH
+// ==============================================
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Ẩn loading screen sau 2 giây
-    setTimeout(() => {
-        document.getElementById('loadingScreen').classList.add('hidden');
-        // Tạo hiệu ứng trái tim bay
+    // Ẩn loading screen sau 2 giây (nếu có)
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) {
+        setTimeout(() => {
+            loadingScreen.classList.add('hidden');
+            createFloatingHearts();
+        }, 2000);
+    } else {
         createFloatingHearts();
-    }, 2000);
+    }
     
     // Khởi tạo các chức năng
     initCountdown();
@@ -42,72 +53,85 @@ document.addEventListener('DOMContentLoaded', function() {
     initNavigation();
     initScrollEffects();
     initGallery();
-    initRSVPForm();
     initWishForm();
+    initRSVPForm();
     initScrollToTop();
-    initMap();
     initModal();
+    
+    // Tải dữ liệu từ Google Sheets
+    loadWishes();
+    loadRSVPStats();
     
     // Thêm sự kiện cho các nút xem bản đồ
     document.querySelectorAll('.map-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const location = this.getAttribute('data-location').split(',');
-            openMapModal(parseFloat(location[0]), parseFloat(location[1]));
+            showNotification('Chức năng bản đồ đang được cập nhật!', 'info');
         });
     });
     
     // Tạo hiệu ứng confetti khi tải xong
     setTimeout(createConfetti, 2500);
+
+    // Cập nhật năm hiện tại ở footer
+    const currentYear = new Date().getFullYear();
+    const yearElements = document.querySelectorAll('.copyright');
+    yearElements.forEach(element => {
+        if(element.textContent.includes('2025')) {
+             // Giữ nguyên hoặc update nếu cần
+        }
+    });
 });
 
-// Countdown đến ngày cưới
+// ==============================================
+// COUNTDOWN - ĐẾM NGƯỢC ĐẾN NGÀY CƯỚI
+// ==============================================
+
 function initCountdown() {
     updateCountdown();
     setInterval(updateCountdown, 1000);
 }
 
 function updateCountdown() {
-    // Đặt ngày cưới của bạn ở đây (năm, tháng-1, ngày, giờ, phút, giây)
-    const weddingDate = new Date(2023, 9, 15, 14, 0, 0).getTime();
     const now = new Date().getTime();
-    const timeLeft = weddingDate - now;
+    const timeLeft = WEDDING_DATE.getTime() - now;
     
     if (timeLeft < 0) {
-        // Nếu ngày cưới đã qua
         document.getElementById('days').innerHTML = '00';
         document.getElementById('hours').innerHTML = '00';
         document.getElementById('minutes').innerHTML = '00';
         document.getElementById('seconds').innerHTML = '00';
         
-        // Cập nhật tiêu đề nếu ngày cưới đã qua
         const weddingTitle = document.querySelector('.wedding-title');
         if (weddingTitle) {
             weddingTitle.textContent = "Cảm ơn đã tham dự hôn lễ của chúng tôi!";
         }
-        
         return;
     }
     
-    // Tính toán ngày, giờ, phút, giây
     const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
     const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
     
-    // Cập nhật DOM
     document.getElementById('days').innerHTML = days < 10 ? '0' + days : days;
     document.getElementById('hours').innerHTML = hours < 10 ? '0' + hours : hours;
     document.getElementById('minutes').innerHTML = minutes < 10 ? '0' + minutes : minutes;
     document.getElementById('seconds').innerHTML = seconds < 10 ? '0' + seconds : seconds;
 }
 
-// Xử lý nhạc nền
+// ==============================================
+// MUSIC PLAYER - NHẠC NỀN
+// ==============================================
+
 function initMusicPlayer() {
     const musicToggle = document.getElementById('musicToggle');
     const weddingMusic = document.getElementById('weddingMusic');
+    if (!musicToggle || !weddingMusic) return;
+
     let isPlaying = false;
     
-    // Thử phát nhạc tự động (bị chặn trên nhiều trình duyệt)
+    // Autoplay policy của trình duyệt thường chặn tự phát nhạc
+    // Nên ta chỉ thử, nếu lỗi thì chờ người dùng click
     const playPromise = weddingMusic.play();
     
     if (playPromise !== undefined) {
@@ -116,7 +140,6 @@ function initMusicPlayer() {
             musicToggle.innerHTML = '<i class="fas fa-pause"></i>';
             musicToggle.style.background = 'linear-gradient(to right, var(--primary-color), var(--secondary-color))';
         }).catch(() => {
-            // Tự động phát bị chặn, để người dùng bật thủ công
             isPlaying = false;
         });
     }
@@ -130,39 +153,51 @@ function initMusicPlayer() {
             weddingMusic.play();
             musicToggle.innerHTML = '<i class="fas fa-pause"></i>';
             musicToggle.style.background = 'linear-gradient(to right, var(--primary-color), var(--secondary-color))';
-            // Tạo hiệu ứng confetti khi bật nhạc
             createConfetti();
         }
         isPlaying = !isPlaying;
     });
 }
 
-// Navigation
+// ==============================================
+// NAVIGATION - ĐIỀU HƯỚNG
+// ==============================================
+
 function initNavigation() {
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.querySelector('.nav-menu');
     const navLinks = document.querySelectorAll('.nav-link');
     const mainNav = document.getElementById('mainNav');
     
-    // Toggle menu mobile
-    hamburger.addEventListener('click', function() {
-        hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
-    });
+    if (hamburger) {
+        hamburger.addEventListener('click', function() {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+    }
     
-    // Đóng menu khi click vào link
     navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
             
-            // Cập nhật active state
+            if (hamburger) hamburger.classList.remove('active');
+            if (navMenu) navMenu.classList.remove('active');
+            
             navLinks.forEach(item => item.classList.remove('active'));
             this.classList.add('active');
+            
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
         });
     });
     
-    // Thay đổi style nav khi scroll
     window.addEventListener('scroll', function() {
         if (window.scrollY > 100) {
             mainNav.classList.add('scrolled');
@@ -172,7 +207,10 @@ function initNavigation() {
     });
 }
 
-// Hiệu ứng scroll fade-in
+// ==============================================
+// SCROLL EFFECTS - HIỆU ỨNG CUỘN
+// ==============================================
+
 function initScrollEffects() {
     const fadeElements = document.querySelectorAll('.fade-in');
     
@@ -189,12 +227,13 @@ function initScrollEffects() {
     
     window.addEventListener('scroll', checkFade);
     window.addEventListener('load', checkFade);
-    
-    // Kiểm tra ngay khi tải trang
     checkFade();
 }
 
-// Gallery
+// ==============================================
+// GALLERY - ALBUM ẢNH
+// ==============================================
+
 function initGallery() {
     renderGallery();
     setupGalleryFilter();
@@ -202,13 +241,15 @@ function initGallery() {
 }
 
 function renderGallery() {
-    const galleryGrid = document.querySelector('.gallery-grid');
+    const galleryGrid = document.getElementById('galleryGrid');
+    if (!galleryGrid) return;
+    
     galleryGrid.innerHTML = '';
     
     // Lọc ảnh theo category
     const filteredImages = currentFilter === 'all' 
-        ? galleryImages 
-        : galleryImages.filter(img => img.category === currentFilter);
+        ? GALLERY_IMAGES 
+        : GALLERY_IMAGES.filter(img => img.category === currentFilter);
     
     // Hiển thị số lượng ảnh tối đa
     const imagesToShow = filteredImages.slice(0, visibleImages);
@@ -216,56 +257,36 @@ function renderGallery() {
     // Tạo HTML cho từng ảnh
     imagesToShow.forEach((image, index) => {
         const galleryItem = document.createElement('div');
-        galleryItem.className = 'gallery-item fade-in';
+        galleryItem.className = 'gallery-item fade-in visible'; // Thêm visible để hiện ngay
         galleryItem.setAttribute('data-category', image.category);
         
         galleryItem.innerHTML = `
             <a href="${image.src}" data-fancybox="gallery" data-caption="${image.title}">
                 <img src="${image.src}" alt="${image.title}">
             </a>
-            <div class="gallery-item-overlay">
-                <h4>${image.title}</h4>
-            </div>
         `;
         
         galleryGrid.appendChild(galleryItem);
     });
     
-    // Khởi tạo fancybox
-    $('[data-fancybox="gallery"]').fancybox({
-        buttons: [
-            "zoom",
-            "share",
-            "slideShow",
-            "fullScreen",
-            "download",
-            "thumbs",
-            "close"
-        ],
-        loop: true,
-        protect: true
-    });
+    // Khởi tạo fancybox (nếu thư viện đã load)
+    if (typeof $ !== 'undefined' && $.fancybox) {
+        $('[data-fancybox="gallery"]').fancybox({
+            buttons: ["zoom", "slideShow", "fullScreen", "close"],
+            loop: true,
+            protect: true
+        });
+    }
     
     // Cập nhật nút "Xem thêm"
     const viewMoreBtn = document.getElementById('viewMoreBtn');
-    if (visibleImages >= filteredImages.length) {
-        viewMoreBtn.style.display = 'none';
-    } else {
-        viewMoreBtn.style.display = 'inline-block';
+    if (viewMoreBtn) {
+        if (visibleImages >= filteredImages.length) {
+            viewMoreBtn.style.display = 'none';
+        } else {
+            viewMoreBtn.style.display = 'inline-block';
+        }
     }
-    
-    // Kích hoạt hiệu ứng fade-in cho ảnh mới
-    setTimeout(() => {
-        const newItems = document.querySelectorAll('.gallery-item:not(.visible)');
-        newItems.forEach(item => {
-            const elementTop = item.getBoundingClientRect().top;
-            const windowHeight = window.innerHeight;
-            
-            if (elementTop < windowHeight - 100) {
-                item.classList.add('visible');
-            }
-        });
-    }, 100);
 }
 
 function setupGalleryFilter() {
@@ -273,13 +294,11 @@ function setupGalleryFilter() {
     
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Cập nhật active state
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             
-            // Cập nhật filter và render lại gallery
             currentFilter = this.getAttribute('data-filter');
-            visibleImages = 8; // Reset về 8 ảnh
+            visibleImages = 8;
             renderGallery();
         });
     });
@@ -288,158 +307,451 @@ function setupGalleryFilter() {
 function setupViewMore() {
     const viewMoreBtn = document.getElementById('viewMoreBtn');
     
-    viewMoreBtn.addEventListener('click', function() {
-        visibleImages += 4;
-        renderGallery();
+    if (viewMoreBtn) {
+        viewMoreBtn.addEventListener('click', function() {
+            visibleImages += 4;
+            renderGallery();
+            
+            // Cuộn đến phần tử gần cuối
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            if (galleryItems.length > 0) {
+                // Scroll nhẹ để user thấy ảnh mới
+            }
+        });
+    }
+}
+
+// ==============================================
+// WISH FORM - FORM GỬI LỜI CHÚC
+// ==============================================
+
+function initWishForm() {
+    const wishForm = document.getElementById('wishForm');
+    
+    if (!wishForm) return;
+    
+    wishForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        // Cuộn đến phần tử cuối cùng
-        const galleryItems = document.querySelectorAll('.gallery-item');
-        if (galleryItems.length > 0) {
-            galleryItems[galleryItems.length - 1].scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'nearest' 
+        const nameInput = document.getElementById('wishName');
+        const messageInput = document.getElementById('wishMessage');
+        const name = nameInput.value.trim();
+        const message = messageInput.value.trim();
+        
+        if (!name || !message) {
+            showNotification('Vui lòng điền đầy đủ thông tin!', 'error');
+            return;
+        }
+
+        // --- KỸ THUẬT OPTIMISTIC UI (HIỆN NGAY LẬP TỨC) ---
+        
+        // 1. Tạo đối tượng lời chúc tạm thời
+        const tempWish = {
+            name: name,
+            message: message,
+            date: new Date().toISOString(),
+            timestamp: new Date().getTime()
+        };
+
+        // 2. Xóa thông báo "chưa có lời chúc" nếu có
+        const wishesScroll = document.getElementById('wishesScroll');
+        const noWishes = wishesScroll.querySelector('.no-wishes');
+        if (noWishes) noWishes.remove();
+
+        // 3. Tạo HTML cho lời chúc mới
+        const wishItem = document.createElement('div');
+        wishItem.className = 'wish-item new-item'; // Thêm class new-item để có hiệu ứng
+        wishItem.style.animation = 'slideDown 0.5s ease-out';
+        
+        const dateDisplay = formatFriendlyDate(tempWish.date);
+        
+        wishItem.innerHTML = `
+            <div class="wish-author">
+                <i class="fas fa-user-circle"></i>
+                <span class="author-name">${escapeHtml(name)}</span>
+            </div>
+            <div class="wish-text">"${escapeHtml(message)}"</div>
+            <div class="wish-date"><i class="far fa-clock"></i> Vừa xong</div>
+        `;
+
+        // 4. Chèn lên đầu danh sách ngay lập tức
+        wishesScroll.insertBefore(wishItem, wishesScroll.firstChild);
+        
+        // 5. Reset form ngay lập tức
+        wishForm.reset();
+        
+        // 6. Hiệu ứng confetti chúc mừng
+        createConfetti();
+        showNotification('Cảm ơn bạn đã gửi lời chúc!', 'success');
+
+        // --- SAU ĐÓ MỚI GỬI NGẦM VỀ SERVER ---
+        const submitBtn = wishForm.querySelector('.submit-btn');
+        submitBtn.disabled = true; // Chỉ disable nút để tránh spam
+
+        try {
+            // Gửi dữ liệu đi (người dùng không cần chờ bước này)
+            await saveToGoogleSheets('wish', {
+                name: name,
+                message: message
             });
+            
+            // Sau khi gửi thành công, có thể tải lại danh sách thật để đồng bộ thời gian
+            // Nhưng để tránh giật lag, ta có thể bỏ qua bước loadWishes() ngay lúc này
+            // hoặc update thầm lặng. Ở đây tôi sẽ giữ nguyên giao diện đã render.
+            
+        } catch (error) {
+            console.error('Error:', error);
+            // Nếu lỗi thật sự, có thể hiện thông báo nhỏ, nhưng thường thì ít khi lỗi
+        } finally {
+            submitBtn.disabled = false;
         }
     });
 }
+// ==============================================
+// RSVP FORM - FORM XÁC NHẬN THAM DỰ
+// ==============================================
 
-// RSVP Form
 function initRSVPForm() {
     const rsvpForm = document.getElementById('rsvpForm');
     const thankYouMessage = document.getElementById('thankYouMessage');
     
     if (!rsvpForm) return;
     
-    rsvpForm.addEventListener('submit', function(e) {
+    rsvpForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // Lấy dữ liệu từ form
-        const formData = {
-            name: document.getElementById('name').value,
-            email: document.getElementById('email').value,
-            phone: document.getElementById('phone').value,
-            guests: document.getElementById('guests').value,
-            attendance: document.querySelector('input[name="attendance"]:checked').value,
-            message: document.getElementById('message').value,
-            timestamp: new Date().toISOString()
-        };
+        const name = document.getElementById('name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const guests = document.getElementById('guests').value;
+        const attendance = document.querySelector('input[name="attendance"]:checked').value;
+        const message = document.getElementById('message').value.trim();
         
-        // Lưu vào localStorage
-        saveRSVPToLocalStorage(formData);
+        if (!name || !phone) {
+            showNotification('Vui lòng điền họ tên và số điện thoại!', 'error');
+            return;
+        }
         
-        // Hiển thị thông báo cảm ơn
-        thankYouMessage.style.display = 'block';
-        rsvpForm.reset();
+        if (!/^\d{10,11}$/.test(phone.replace(/\D/g, ''))) {
+            showNotification('Số điện thoại không hợp lệ!', 'error');
+            return;
+        }
         
-        // Tạo hiệu ứng confetti
-        createConfetti();
+        // Hiển thị loading
+        const submitBtn = rsvpForm.querySelector('.submit-btn');
+        const originalText = submitBtn.textContent;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+        submitBtn.disabled = true;
         
-        // Cuộn đến thông báo
-        thankYouMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Ẩn thông báo sau 10 giây
-        setTimeout(() => {
-            thankYouMessage.style.display = 'none';
-        }, 10000);
+        try {
+            const success = await saveToGoogleSheets('rsvp', {
+                name: name,
+                phone: phone,
+                guests: guests,
+                attendance: attendance,
+                message: message
+            });
+            
+            if (success) {
+                if (thankYouMessage) {
+                    thankYouMessage.style.display = 'block';
+                    thankYouMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                rsvpForm.reset();
+                createConfetti();
+                loadRSVPStats();
+                
+                setTimeout(() => {
+                    if (thankYouMessage) thankYouMessage.style.display = 'none';
+                }, 10000);
+                
+                showNotification('Cảm ơn bạn đã xác nhận tham dự!', 'success');
+            } else {
+                showNotification('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Có lỗi kết nối. Vui lòng thử lại!', 'error');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
     });
 }
 
-function saveRSVPToLocalStorage(formData) {
-    let rsvpList = JSON.parse(localStorage.getItem('weddingRSVP')) || [];
-    rsvpList.push(formData);
-    localStorage.setItem('weddingRSVP', JSON.stringify(rsvpList));
-    console.log('RSVP đã được lưu:', formData);
-}
+// ==============================================
+// GOOGLE SHEETS API FUNCTIONS - ĐÃ SỬA LỖI
+// ==============================================
 
-// Wish Form
-function initWishForm() {
-    const wishForm = document.getElementById('wishForm');
-    const wishesScroll = document.querySelector('.wishes-scroll');
-    
-    // Tải lời chúc từ localStorage
-    const savedWishes = JSON.parse(localStorage.getItem('weddingWishes'));
-    if (savedWishes && savedWishes.length > 0) {
-        wishes = [...sampleWishes, ...savedWishes];
+/**
+ * Gửi dữ liệu lên Google Sheets
+ * QUAN TRỌNG: Sử dụng content-type text/plain để tránh lỗi CORS Preflight
+ */
+async function saveToGoogleSheets(type, data) {
+    try {
+        console.log('Sending data to Google Sheets...', { type, data });
+        
+        const url = GOOGLE_SCRIPT_URL;
+        
+        const payload = {
+            type: type,
+            ...data
+        };
+        
+        // SỬA LỖI QUAN TRỌNG TẠI ĐÂY:
+        // 1. Dùng method POST
+        // 2. Headers là text/plain để tránh preflight check của trình duyệt
+        // 3. Body là chuỗi JSON
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8', 
+            },
+            mode: 'cors', // Chắc chắn muốn nhận phản hồi
+            redirect: 'follow',
+            body: JSON.stringify(payload)
+        });
+        
+        // Đọc phản hồi
+        const responseText = await response.text();
+        console.log('Response:', responseText);
+        
+        // Cố gắng parse JSON
+        try {
+            const result = JSON.parse(responseText);
+            return result.success === true;
+        } catch (e) {
+            // Nếu trả về text mà có chữ success hoặc true thì coi như thành công
+            return responseText.includes('success') || responseText.includes('true');
+        }
+        
+    } catch (error) {
+        console.error('Error in saveToGoogleSheets:', error);
+        return false;
     }
-    
-    // Hiển thị lời chúc
-    renderWishes();
-    
-    if (!wishForm) return;
-    
-    wishForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const name = document.getElementById('wishName').value.trim();
-        const message = document.getElementById('wishMessage').value.trim();
-        
-        if (!name || !message) return;
-        
-        // Tạo lời chúc mới
-        const newWish = {
-            name: name,
-            message: message,
-            date: new Date().toLocaleDateString('vi-VN')
-        };
-        
-        // Thêm vào mảng và lưu
-        wishes.unshift(newWish);
-        saveWishesToLocalStorage();
-        
-        // Hiển thị lại
-        renderWishes();
-        
-        // Reset form
-        wishForm.reset();
-        
-        // Tạo hiệu ứng
-        createConfetti();
-        
-        // Thông báo
-        alert('Cảm ơn bạn đã gửi lời chúc!');
-    });
 }
 
-function renderWishes() {
-    const wishesScroll = document.querySelector('.wishes-scroll');
+// Tải danh sách lời chúc từ Google Sheets
+async function loadWishes() {
+    const wishesScroll = document.getElementById('wishesScroll');
     if (!wishesScroll) return;
     
+    try {
+        wishesScroll.innerHTML = '<div class="loading-wishes"><i class="fas fa-spinner fa-spin"></i> Đang tải lời chúc...</div>';
+        
+        const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getWishes&t=${new Date().getTime()}`);
+        const result = await response.json();
+        
+        if (result.success && result.wishes) {
+            renderWishes(result.wishes);
+        } else {
+            renderWishes(getSampleWishes()); // Fallback nếu lỗi
+        }
+    } catch (error) {
+        console.error('Error loading wishes:', error);
+        renderWishes(getSampleWishes());
+    }
+}
+
+// Tải thống kê RSVP
+async function loadRSVPStats() {
+    const statsContainer = document.getElementById('rsvpStats');
+    if (!statsContainer) return;
+    
+    try {
+        const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getRSVPStats&t=${new Date().getTime()}`);
+        const result = await response.json();
+        
+        if (result.success && result.stats) {
+            renderRSVPStats(result.stats);
+        }
+    } catch (error) {
+        console.error('Error loading RSVP stats:', error);
+    }
+}
+
+function renderWishes(wishesArray) {
+    const wishesScroll = document.getElementById('wishesScroll');
+    if (!wishesScroll) return;
+    
+    // Nếu là load lần đầu thì xóa nội dung cũ
+    // Nếu đang thêm mới thì không xóa (để xử lý logic bên dưới)
+    if (wishesScroll.querySelector('.loading-wishes') || wishesScroll.querySelector('.no-wishes')) {
+        wishesScroll.innerHTML = '';
+    }
+    
+    if (!Array.isArray(wishesArray) || wishesArray.length === 0) {
+        if (wishesScroll.children.length === 0) {
+            wishesScroll.innerHTML = '<div class="no-wishes">Chưa có lời chúc nào. Hãy là người đầu tiên!</div>';
+        }
+        return;
+    }
+    
+    // Sắp xếp mới nhất lên đầu
+    wishesArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    
+    // Lấy tối đa 20 lời chúc
+    const wishesToShow = wishesArray.slice(0, 20);
+    
+    // Xóa danh sách cũ để render lại cho chuẩn (hoặc có thể tối ưu hơn nhưng cách này an toàn nhất)
     wishesScroll.innerHTML = '';
-    
-    // Hiển thị tối đa 10 lời chúc
-    const wishesToShow = wishes.slice(0, 10);
-    
+
     wishesToShow.forEach(wish => {
         const wishItem = document.createElement('div');
-        wishItem.className = 'wish-item';
+        wishItem.className = 'wish-item fade-in visible'; 
+        
+        const name = wish.name || 'Ẩn danh';
+        const message = wish.message || '';
+        // SỬ DỤNG HÀM FORMAT THỜI GIAN MỚI Ở ĐÂY
+        const dateDisplay = formatFriendlyDate(wish.date);
         
         wishItem.innerHTML = `
             <div class="wish-author">
                 <i class="fas fa-user-circle"></i>
-                ${wish.name}
+                <span class="author-name">${escapeHtml(name)}</span>
             </div>
-            <div class="wish-text">"${wish.message}"</div>
-            <div class="wish-date">${wish.date}</div>
+            <div class="wish-text">"${escapeHtml(message)}"</div>
+            <div class="wish-date"><i class="far fa-clock"></i> ${dateDisplay}</div>
         `;
         
         wishesScroll.appendChild(wishItem);
     });
 }
 
-function saveWishesToLocalStorage() {
-    // Chỉ lưu những lời chúc không phải mẫu
-    const userWishes = wishes.filter(wish => 
-        !sampleWishes.some(sample => 
-            sample.name === wish.name && sample.message === wish.message
-        )
-    );
+// Render Thống kê RSVP
+function renderRSVPStats(stats) {
+    const statsContainer = document.getElementById('rsvpStats');
+    if (!statsContainer) return;
     
-    localStorage.setItem('weddingWishes', JSON.stringify(userWishes));
+    const statsHTML = `
+        <div class="rsvp-stats fade-in visible">
+            <h3>Thống kê tham dự</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">${stats.totalResponses || 0}</div>
+                    <div class="stat-label">Phản hồi</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${stats.totalGuests || 0}</div>
+                    <div class="stat-label">Khách</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${(stats.attendanceCount && stats.attendanceCount.yes) || 0}</div>
+                    <div class="stat-label">Tham dự</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    statsContainer.innerHTML = statsHTML;
 }
 
-// Scroll to top
+// Lời chúc mẫu (dùng khi không load được)
+function getSampleWishes() {
+    return [
+        { 
+            name: 'Hệ thống', 
+            message: 'Chào mừng bạn đến với sổ lưu bút của Nam & Hiền!', 
+            date: 'Hôm nay',
+            timestamp: new Date().getTime()
+        }
+    ];
+}
+
+// ==============================================
+// UTILITY FUNCTIONS - HÀM TIỆN ÍCH
+// ==============================================
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+function createFloatingHearts() {
+    const container = document.getElementById('heartsContainer');
+    if (!container) return;
+    
+    // Xóa tim cũ để tránh quá tải
+    container.innerHTML = '';
+    
+    const heartCount = 15;
+    for (let i = 0; i < heartCount; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerHTML = '<i class="fas fa-heart"></i>';
+        
+        const left = Math.random() * 100;
+        const size = Math.random() * 15 + 10;
+        const duration = Math.random() * 10 + 15;
+        const delay = Math.random() * 5;
+        
+        heart.style.left = `${left}%`;
+        heart.style.fontSize = `${size}px`;
+        heart.style.animationDuration = `${duration}s`;
+        heart.style.animationDelay = `${delay}s`;
+        
+        const colors = ['#e8c9c1', '#d4a5a5', '#f8c8dc', '#d4af37'];
+        heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+        
+        container.appendChild(heart);
+    }
+}
+
+function createConfetti() {
+    const container = document.getElementById('confetti-container');
+    if (!container) return;
+    
+    const confettiCount = 50;
+    
+    for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        
+        const left = Math.random() * 100;
+        const size = Math.random() * 8 + 4;
+        const duration = Math.random() * 2 + 1;
+        const delay = Math.random() * 1;
+        
+        confetti.style.left = `${left}%`;
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        confetti.style.position = 'absolute'; // Đảm bảo position
+        confetti.style.top = '-10px';
+        confetti.style.backgroundColor = ['#e8c9c1', '#d4a5a5', '#f8c8dc'][Math.floor(Math.random() * 3)];
+        confetti.style.animation = `confettiFall ${duration}s ease-in ${delay}s forwards`;
+        
+        container.appendChild(confetti);
+        
+        setTimeout(() => {
+            if (confetti.parentNode) confetti.parentNode.removeChild(confetti);
+        }, (duration + delay) * 1000);
+    }
+}
+
 function initScrollToTop() {
     const scrollTopBtn = document.getElementById('scrollTop');
+    if (!scrollTopBtn) return;
     
     window.addEventListener('scroll', function() {
         if (window.scrollY > 500) {
@@ -450,208 +762,46 @@ function initScrollToTop() {
     });
     
     scrollTopBtn.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 }
 
-// Bản đồ
-function initMap() {
-    // Kiểm tra xem Google Maps API đã được tải chưa
-    if (typeof google === 'undefined') {
-        console.warn('Google Maps API không khả dụng');
-        return;
-    }
-    
-    // Tọa độ mặc định (khách sạn InterContinental)
-    const defaultLocation = { lat: 21.037365, lng: 105.809149 };
-    
-    // Khởi tạo bản đồ chính
-    map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 15,
-        center: defaultLocation,
-        styles: [
-            {
-                featureType: 'all',
-                elementType: 'labels.text.fill',
-                stylers: [{ color: '#5a4a42' }]
-            },
-            {
-                featureType: 'poi',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            }
-        ]
-    });
-    
-    // Thêm marker
-    new google.maps.Marker({
-        position: defaultLocation,
-        map: map,
-        title: 'Địa điểm tiệc cưới',
-        icon: {
-            url: 'http://maps.google.com/mapfiles/ms/icons/pink-dot.png'
-        }
-    });
-    
-    // Khởi tạo bản đồ cho modal
-    modalMap = new google.maps.Map(document.getElementById('modalMap'), {
-        zoom: 16,
-        center: defaultLocation,
-        styles: [
-            {
-                featureType: 'all',
-                elementType: 'labels.text.fill',
-                stylers: [{ color: '#5a4a42' }]
-            }
-        ]
-    });
-}
-
-function openMapModal(lat, lng) {
-    const modal = document.getElementById('mapModal');
-    const location = { lat: lat, lng: lng };
-    
-    // Cập nhật vị trí bản đồ modal
-    if (modalMap) {
-        modalMap.setCenter(location);
-        modalMap.setZoom(16);
-        
-        // Xóa marker cũ và thêm marker mới
-        new google.maps.Marker({
-            position: location,
-            map: modalMap,
-            title: 'Địa điểm',
-            icon: {
-                url: 'http://maps.google.com/mapfiles/ms/icons/pink-dot.png'
-            }
-        });
-    }
-    
-    // Hiển thị modal
-    modal.style.display = 'flex';
-}
-
-// Modal
 function initModal() {
     const modal = document.getElementById('mapModal');
     const closeModal = document.querySelector('.close-modal');
     
-    // Đóng modal khi click vào nút đóng
+    if (!modal || !closeModal) return;
+    
     closeModal.addEventListener('click', function() {
         modal.style.display = 'none';
     });
     
-    // Đóng modal khi click bên ngoài nội dung
     modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-    
-    // Đóng modal khi nhấn phím ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            modal.style.display = 'none';
-        }
+        if (e.target === modal) modal.style.display = 'none';
     });
 }
+// Hàm chuyển đổi thời gian ISO sang dạng thân thiện
+// Ví dụ: "2025-12-25T17:00:00.000Z" -> "17:00 - 25/12/2025"
+function formatFriendlyDate(isoString) {
+    if (!isoString) return 'Vừa xong';
+    
+    try {
+        const date = new Date(isoString);
+        
+        // Kiểm tra nếu date không hợp lệ
+        if (isNaN(date.getTime())) return isoString;
 
-// Tạo hiệu ứng trái tim bay
-function createFloatingHearts() {
-    const container = document.getElementById('heartsContainer');
-    const heartCount = 20;
-    
-    for (let i = 0; i < heartCount; i++) {
-        const heart = document.createElement('div');
-        heart.className = 'heart';
-        heart.innerHTML = '<i class="fas fa-heart"></i>';
+        // Lấy giờ và phút
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
         
-        // Random vị trí và kích thước
-        const left = Math.random() * 100;
-        const size = Math.random() * 20 + 10;
-        const duration = Math.random() * 10 + 15;
-        const delay = Math.random() * 5;
-        
-        heart.style.left = `${left}%`;
-        heart.style.fontSize = `${size}px`;
-        heart.style.animationDuration = `${duration}s`;
-        heart.style.animationDelay = `${delay}s`;
-        
-        // Random màu
-        const colors = ['#e8c9c1', '#d4a5a5', '#f8c8dc', '#d4af37'];
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        heart.style.color = color;
-        
-        container.appendChild(heart);
-        
-        // Xóa heart sau khi animation kết thúc
-        setTimeout(() => {
-            if (heart.parentNode) {
-                heart.parentNode.removeChild(heart);
-            }
-        }, (duration + delay) * 1000);
-    }
-    
-    // Tiếp tục tạo hearts mới
-    setTimeout(createFloatingHearts, 2000);
-}
+        // Lấy ngày tháng năm
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
 
-// Tạo hiệu ứng confetti
-function createConfetti() {
-    const container = document.getElementById('confetti-container');
-    const confettiCount = 100;
-    
-    for (let i = 0; i < confettiCount; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        
-        // Random vị trí, kích thước và màu
-        const left = Math.random() * 100;
-        const size = Math.random() * 10 + 5;
-        const duration = Math.random() * 3 + 2;
-        const delay = Math.random() * 2;
-        
-        confetti.style.left = `${left}%`;
-        confetti.style.width = `${size}px`;
-        confetti.style.height = `${size}px`;
-        confetti.style.animation = `confettiFall ${duration}s ease-in ${delay}s forwards`;
-        
-        container.appendChild(confetti);
-        
-        // Xóa confetti sau khi rơi xong
-        setTimeout(() => {
-            if (confetti.parentNode) {
-                confetti.parentNode.removeChild(confetti);
-            }
-        }, (duration + delay) * 1000);
-    }
-    
-    // Thêm CSS animation cho confetti
-    if (!document.getElementById('confetti-style')) {
-        const style = document.createElement('style');
-        style.id = 'confetti-style';
-        style.textContent = `
-            @keyframes confettiFall {
-                0% {
-                    transform: translateY(-100px) rotate(0deg);
-                    opacity: 1;
-                }
-                100% {
-                    transform: translateY(100vh) rotate(360deg);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
+        return `${hours}:${minutes} - ${day}/${month}/${year}`;
+    } catch (e) {
+        return isoString;
     }
 }
-
-// Thêm năm hiện tại vào footer
-const currentYear = new Date().getFullYear();
-const yearElements = document.querySelectorAll('.copyright');
-yearElements.forEach(element => {
-    element.textContent = element.textContent.replace('2023', currentYear);
-});

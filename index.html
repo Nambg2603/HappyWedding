@@ -3,14 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thiệp Mời Cưới | Nam& Hiền</title>
+    <title>Thiệp Mời Cưới | Nam & Hiền</title>
+    
+    <!-- Meta Tags cho SEO và Social Sharing -->
+    <meta name="description" content="Thiệp mời cưới trực tuyến của Nam và Hiền. Hôn lễ được tổ chức vào năm 2025 tại Bắc Ninh.">
+    <meta name="keywords" content="thiệp cưới, đám cưới, hôn lễ, Nam, Hiền, cưới hỏi, 2025, Bắc Ninh">
+    <meta name="author" content="Nam & Hiền">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nambg2603.github.io/HappyWedding/">
+    <meta property="og:title" content="Thiệp Mời Cưới | Nam & Hiền">
+    <meta property="og:description" content="Chúng tôi sắp kết hôn! Hãy tham dự hôn lễ của chúng tôi vào năm 2025 tại Bắc Ninh.">
+    <meta property="og:image" content="https://nambg2603.github.io/HappyWedding/assets/images/social-preview.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Thiệp Cưới Nam & Hiền">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://nambg2603.github.io/HappyWedding/">
+    <meta property="twitter:title" content="Thiệp Mời Cưới | Nam & Hiền">
+    <meta property="twitter:description" content="Chúng tôi sắp kết hôn! Hãy tham dự hôn lễ của chúng tôi vào năm 2025 tại Bắc Ninh.">
+    <meta property="twitter:image" content="https://nambg2603.github.io/HappyWedding/assets/images/social-preview.jpg">
+    
+    <!-- CSS Files -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Playfair+Display:wght@400;700&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
 </head>
 <body>
-    <!-- Loading Screen -->
+    <!-- Loading Screen 
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-content">
             <div class="ring"></div>
@@ -19,7 +47,7 @@
             <p>Đang tải thiệp mời...</p>
         </div>
     </div>
-
+-->
     <!-- Music Player -->
     <div class="music-player">
         <button class="music-btn" id="musicToggle">
@@ -27,7 +55,6 @@
         </button>
         <audio id="weddingMusic" loop>
             <source src="assets/music/wedding-music.mp3" type="audio/mpeg">
-            Your browser does not support the audio element.
         </audio>
     </div>
 
@@ -39,34 +66,25 @@
         <div class="video-background">
             <video autoplay muted loop id="headerVideo">
                 <source src="assets/videos/wedding-video.mp4" type="video/mp4">
-                <source src="assets/videos/wedding-video.webm" type="video/webm">
-                Your browser does not support the video tag.
             </video>
             <div class="video-overlay"></div>
         </div>
         
-        <div class="flower flower-1">
-            <i class="fas fa-pagelines fa-2x"></i>
-        </div>
-        <div class="flower flower-2">
-            <i class="fas fa-pagelines fa-2x"></i>
-        </div>
-        <div class="flower flower-3">
-            <i class="fas fa-pagelines fa-2x"></i>
-        </div>
-        <div class="flower flower-4">
-            <i class="fas fa-pagelines fa-2x"></i>
-        </div>
+        <!-- Flowers decorations -->
+        <div class="flower flower-1"><i class="fas fa-pagelines fa-2x"></i></div>
+        <div class="flower flower-2"><i class="fas fa-pagelines fa-2x"></i></div>
+        <div class="flower flower-3"><i class="fas fa-pagelines fa-2x"></i></div>
+        <div class="flower flower-4"><i class="fas fa-pagelines fa-2x"></i></div>
         
         <div class="header-content">
-            <h1 class="couple-names">Nam& Hiền</h1>
+            <h1 class="couple-names">Nam & Hiền</h1>
             <div class="heart-divider">
                 <i class="fas fa-heart"></i>
             </div>
             <h2 class="wedding-title">Hôn Lễ Của Chúng Tôi</h2>
-            <p class="date-place">2025 | Băc Ninh </p>
+            <p class="date-place">2025 | Bắc Ninh</p>
             
-            <!-- Countdown đến ngày cưới -->
+            <!-- Countdown -->
             <div class="countdown">
                 <div class="countdown-item">
                     <div class="countdown-number" id="days">00</div>
@@ -96,7 +114,7 @@
     <nav class="main-nav" id="mainNav">
         <div class="nav-container">
             <div class="nav-brand">
-                <span class="nav-couple-name">Nam& Hiền</span>
+                <span class="nav-couple-name">Nam & Hiền</span>
             </div>
             <ul class="nav-menu">
                 <li><a href="#home" class="nav-link active">Trang chủ</a></li>
@@ -131,11 +149,11 @@
                 </div>
                 <div class="story-text fade-in">
                     <p>Chúng tôi gặp nhau vào một ngày mưa tháng 6 năm 2018, tại một quán cà phê nhỏ ở trung tâm thành phố. Từ cái nhìn đầu tiên, tôi biết rằng có điều gì đó đặc biệt về cô ấy.</p>
-                    <p>Sau 3 năm tìm hiểu và cùng nhau trải qua nhiều khoảnh khắc đáng nhớ, vào ngày 14/02/2022, dưới bầu trời đầy sao, Namđã cầu hôn Hiền và cô ấy đã đồng ý!</p>
+                    <p>Sau 3 năm tìm hiểu và cùng nhau trải qua nhiều khoảnh khắc đáng nhớ, vào ngày 14/02/2022, dưới bầu trời đầy sao, Nam đã cầu hôn Hiền và cô ấy đã đồng ý!</p>
                     <p>Hành trình tình yêu của chúng tôi là sự kết hợp giữa những nụ cười, giọt nước mắt và vô số kỷ niệm đẹp. Và bây giờ, chúng tôi không thể chờ đợi để bắt đầu chương mới của cuộc đời bên nhau.</p>
                     <div class="quote">
                         <i class="fas fa-quote-left"></i>
-                        <p>Tình yêu không pNamlà việc bạn nhìn chằm chằm vào nhau, mà là cùng nhau hướng về một phía.</p>
+                        <p>Tình yêu không phải là việc bạn nhìn chằm chằm vào nhau, mà là cùng nhau hướng về một phía.</p>
                         <i class="fas fa-quote-right"></i>
                     </div>
                 </div>
@@ -152,7 +170,7 @@
                     <div class="timeline-date">30.4.2025</div>
                     <div class="timeline-content">
                         <h3>Gặp gỡ định mệnh</h3>
-                        <p>Lần đầu gặp nhau tại cầu Vĩnh Tuy - Hà Nội , lúc ấy Hiền đi chơi với bạn lúc 3h sáng</p>
+                        <p>Lần đầu gặp nhau tại cầu Vĩnh Tuy - Hà Nội, lúc ấy Hiền đi chơi với bạn lúc 3h sáng</p>
                         <div class="timeline-image">
                             <img src="assets/images/timeline1.jpg" alt="Gặp gỡ">
                         </div>
@@ -162,7 +180,7 @@
                     <div class="timeline-date">2.9.2025</div>
                     <div class="timeline-content">
                         <h3>Lần đầu hẹn hò</h3>
-                        <p>Hiền vẫn không chấp nhận , nhưng do tôi nài nỉ nên cô ấy đồng ý làm bạn gái tôi.</p>
+                        <p>Hiền vẫn không chấp nhận, nhưng do tôi nài nỉ nên cô ấy đồng ý làm bạn gái tôi.</p>
                         <div class="timeline-image">
                             <img src="assets/images/timeline2.jpg" alt="Hẹn hò">
                         </div>
@@ -171,10 +189,10 @@
                 <div class="timeline-item fade-in">
                     <div class="timeline-date">20.12.2025</div>
                     <div class="timeline-content">
-                        <h3>Lần đầu tiên cô ấy xuất hiện tại ngôi nhà của tôi và gặp gỡ gia đình tôi </h3>
-                        <p>Sự phúc hậu của cô ấy khiến gia đình tôi rất hài lòng </p>
+                        <h3>Gặp gỡ gia đình</h3>
+                        <p>Lần đầu tiên cô ấy xuất hiện tại ngôi nhà của tôi và gặp gỡ gia đình tôi</p>
                         <div class="timeline-image">
-                            <img src="assets/images/timeline3.jpg" alt="Đại dịch">
+                            <img src="assets/images/timeline3.jpg" alt="Gia đình">
                         </div>
                     </div>
                 </div>
@@ -214,7 +232,7 @@
                 <button class="filter-btn" data-filter="family">Gia đình</button>
             </div>
             
-            <div class="gallery-grid">
+            <div class="gallery-grid" id="galleryGrid">
                 <!-- Ảnh sẽ được thêm bằng JavaScript -->
             </div>
             
@@ -235,7 +253,7 @@
                     </div>
                     <h3 class="detail-title">Lễ Thành Hôn</h3>
                     <p><i class="far fa-clock"></i> 14:00 - 15:30</p>
-                    <p><i class="fas fa-map-marker-alt"></i> </p>
+                    <p><i class="fas fa-map-marker-alt"></i> Địa điểm tổ chức</p>
                     <p><i class="fas fa-location-arrow"></i> Bắc Ninh</p>
                     <button class="map-btn" data-location="21.028511,105.804817">Xem bản đồ</button>
                 </div>
@@ -246,8 +264,8 @@
                     </div>
                     <h3 class="detail-title">Tiệc Chiêu Đãi</h3>
                     <p><i class="far fa-clock"></i> 18:00 - 21:00</p>
-                    <p><i class="fas fa-map-marker-alt"></i></p>
-                    <p><i class="fas fa-location-arrow"></i>Bắc Ninh</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Nhà hàng tiệc cưới</p>
+                    <p><i class="fas fa-location-arrow"></i> Bắc Ninh</p>
                     <button class="map-btn" data-location="21.037365,105.809149">Xem bản đồ</button>
                 </div>
                 
@@ -257,15 +275,78 @@
                     </div>
                     <h3 class="detail-title">Thông tin thêm</h3>
                     <p><i class="fas fa-car"></i> Xe đưa đón có sẵn</p>
-                    <p><i class="fas fa-utensils"></i> Menu đặc biệt theo yêu cầu</p>
+                    <p><i class="fas fa-utensils"></i> Menu đặc biệt</p>
                     <p><i class="fas fa-gift"></i> Quà mừng: không bắt buộc</p>
                     <p><i class="fas fa-tshirt"></i> Dress code: Lịch sự/Truyền thống</p>
                 </div>
             </div>
-            
-            <!-- Bản đồ -->
-            <div class="map-container fade-in">
-                <div id="map"></div>
+        </div>
+    </section>
+
+    <!-- RSVP -->
+    <section class="rsvp" id="rsvp">
+        <div class="container">
+            <h2 class="section-title fade-in">Xác Nhận Tham Dự</h2>
+            <div class="rsvp-form fade-in">
+                <form id="rsvpForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Họ và tên *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Số điện thoại *</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guests">Số lượng khách *</label>
+                            <select id="guests" name="guests" required>
+                                <option value="1">1 người</option>
+                                <option value="2" selected>2 người</option>
+                                <option value="3">3 người</option>
+                                <option value="4">4 người</option>
+                                <option value="5">5 người trở lên</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="attendance">Bạn sẽ tham dự? *</label>
+                            <div class="attendance-options">
+                                <label class="attendance-option">
+                                    <input type="radio" name="attendance" value="yes" checked>
+                                    <span class="radio-btn"></span>
+                                    <span class="radio-label">Có, tôi sẽ tham dự</span>
+                                </label>
+                                <label class="attendance-option">
+                                    <input type="radio" name="attendance" value="no">
+                                    <span class="radio-btn"></span>
+                                    <span class="radio-label">Xin lỗi, tôi không thể tham dự</span>
+                                </label>
+                                <label class="attendance-option">
+                                    <input type="radio" name="attendance" value="maybe">
+                                    <span class="radio-btn"></span>
+                                    <span class="radio-label">Chưa chắc chắn</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Lời nhắn đến cặp đôi (tùy chọn)</label>
+                        <textarea id="message" name="message" placeholder="Chúc mừng hạnh phúc..." rows="3"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Gửi phản hồi</button>
+                </form>
+                <div id="thankYouMessage" class="thank-you-message">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Cảm ơn bạn đã xác nhận tham dự! Chúng tôi rất mong được gặp bạn trong ngày trọng đại.</p>
+                </div>
+                <div id="rsvpStats"></div>
             </div>
         </div>
     </section>
@@ -290,81 +371,9 @@
                 
                 <div class="wishes-list fade-in">
                     <h3>Những lời chúc gần đây</h3>
-                    <div class="wishes-scroll">
+                    <div class="wishes-scroll" id="wishesScroll">
                         <!-- Lời chúc sẽ được thêm bằng JavaScript -->
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- RSVP -->
-    <section class="rsvp" id="rsvp">
-        <div class="container">
-            <h2 class="section-title fade-in">Xác Nhận Tham Dự</h2>
-            <div class="rsvp-form fade-in">
-                <form id="rsvpForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="name">Họ và tên *</label>
-                            <input type="text" id="name" name="name" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="phone">Số điện thoại *</label>
-                            <input type="tel" id="phone" name="phone" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="guests">Số lượng khách *</label>
-                            <select id="guests" name="guests" required>
-                                <option value="1">1 người</option>
-                                <option value="2" selected>2 người</option>
-                                <option value="3">3 người</option>
-                                <option value="4">4 người</option>
-                                <option value="5">5 người trở lên</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="attendance">Bạn sẽ tham dự? *</label>
-                        <div class="attendance-options">
-                            <label class="attendance-option">
-                                <input type="radio" name="attendance" value="yes" checked>
-                                <span class="radio-btn"></span>
-                                <span class="radio-label">Có, tôi sẽ tham dự</span>
-                            </label>
-                            <label class="attendance-option">
-                                <input type="radio" name="attendance" value="no">
-                                <span class="radio-btn"></span>
-                                <span class="radio-label">Xin lỗi, tôi không thể tham dự</span>
-                            </label>
-                            <label class="attendance-option">
-                                <input type="radio" name="attendance" value="maybe">
-                                <span class="radio-btn"></span>
-                                <span class="radio-label">Chưa chắc chắn</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="message">Lời nhắn đến cặp đôi (tùy chọn)</label>
-                        <textarea id="message" name="message" placeholder="Chúc mừng hạnh phúc..." rows="3"></textarea>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn">Gửi phản hồi</button>
-                </form>
-                <div id="thankYouMessage" class="thank-you-message">
-                    <i class="fas fa-check-circle"></i>
-                    <p>Cảm ơn bạn đã xác nhận tham dự! Chúng tôi rất mong được gặp bạn trong ngày trọng đại.</p>
                 </div>
             </div>
         </div>
@@ -374,7 +383,7 @@
     <footer>
         <div class="container">
             <div class="footer-content">
-                <h2 class="footer-names">Nam& Hiền</h2>
+                <h2 class="footer-names">Nam & Hiền</h2>
                 <p class="thank-you">Cảm ơn bạn đã chia sẻ niềm vui này cùng chúng tôi!</p>
                 <p>Mọi thắc mắc xin liên hệ: 0987.654.321 (Chú rể) hoặc 0912.345.678 (Cô dâu)</p>
                 <div class="social-links">
@@ -383,7 +392,7 @@
                     <a href="#"><i class="fab fa-twitter"></i></a>
                     <a href="#"><i class="fab fa-youtube"></i></a>
                 </div>
-                <p class="copyright">© 2023 Thiệp mời cưới Nam& Hiền. Tất cả các quyền được bảo lưu.</p>
+                <p class="copyright">© 2025 Thiệp mời cưới Nam & Hiền</p>
             </div>
         </div>
     </footer>
@@ -408,7 +417,6 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
     <script src="script.js"></script>
 </body>
 </html>
