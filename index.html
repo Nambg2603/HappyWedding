@@ -4,265 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lễ Dạm Ngõ - Nguyễn Nam & Thân Hiền</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Great+Vibes&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,500;0,700;1,600&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            --gold-light: #fcf6ba;
-            --gold-mid: #bf953f;
-            --gold-dark: #aa771c;
+        /* Đặt lại lề cơ bản */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden;
-            background: #000 url('backgr.gif') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Cormorant Garamond', serif;
-            color: #fff;
+            overflow: hidden; /* Ẩn thanh cuộn */
+            font-family: 'Playfair Display', serif;
         }
 
-        /* Hiệu ứng Vignette: Tối dần về các góc để tạo chiều sâu và tập trung ánh sáng vào giữa */
-        .vignette-overlay {
+        /* Lớp phủ video nền */
+        .video-container {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
-            z-index: 1;
-        }
-
-        /* Một lớp viền mỏng, thanh lịch (Minimalist Frame) */
-        .cinematic-frame {
-            position: absolute;
-            top: 30px; left: 30px;
-            right: 30px; bottom: 30px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        .main-content {
-            position: relative;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+            z-index: -2;
         }
 
-        /* Tiêu đề thanh lịch */
-        .subtitle {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.2rem;
-            letter-spacing: 12px;
-            font-weight: 300;
-            text-transform: uppercase;
-            color: #e0e0e0;
-            margin-bottom: 20px;
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Đảm bảo video phủ kín màn hình */
         }
 
-        /* Kỹ thuật Text Masking: Chữ lấp lánh như vàng */
-        .gold-shimmer-text {
-            font-family: 'Great Vibes', cursive;
-            font-size: 8rem;
-            margin: 10px 0;
-            padding: 10px;
-            background: linear-gradient(to right, var(--gold-mid), var(--gold-light), var(--gold-dark), var(--gold-light), var(--gold-mid));
-            background-size: 200% auto;
-            color: #000;
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 4s linear infinite;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
-        }
-
-        .gold-shimmer-text span {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 4rem;
-            font-style: italic;
-            margin: 0 15px;
-            opacity: 0.8;
-        }
-
-        .date-box {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .solar-date {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.5rem;
-            letter-spacing: 8px;
-            color: var(--gold-light);
-            border-bottom: 1px solid rgba(252, 246, 186, 0.4);
-            padding-bottom: 10px;
-        }
-
-        .lunar-date {
-            font-size: 1.3rem;
-            font-style: italic;
-            color: #aaa;
-            margin-top: 5px;
-        }
-
-        /* Hiệu ứng Lấy nét ống kính (Lens Focus) cho chữ chạy */
-        #dynamic-text-wrapper {
-            margin-top: 60px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #dynamic-text {
-            font-size: 2.2rem;
-            font-weight: 400;
-            font-style: italic;
-            color: #fff;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            transition: opacity 1.5s ease, filter 1.5s ease, transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-            opacity: 1;
-            filter: blur(0);
-            transform: scale(1);
-        }
-
-        /* Class khi chữ đang "out nét" và biến mất */
-        #dynamic-text.focus-out {
-            opacity: 0;
-            filter: blur(12px);
-            transform: scale(1.1);
-        }
-
-        /* Hạt Bokeh hữu cơ (Organic Bokeh Particles) */
-        #bokeh-container {
+        /* Lớp phủ mờ giúp chữ nổi bật hơn trên video */
+        .overlay {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 2;
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3); /* Độ mờ nhẹ cho video tone vàng */
+            z-index: -1;
         }
 
-        .bokeh {
+        /* Định dạng nội dung chữ chính - Đã xóa câu chúc phụ */
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #ffffff;
+            z-index: 10;
+            text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.6); /* Đổ bóng để nổi bật */
+            width: 100%; /* Dùng 100% để ép 1 dòng */
+        }
+
+        .title {
+            font-size: 5rem; 
+            text-transform: uppercase;
+            letter-spacing: 7px; 
+            margin-bottom: 25px;
+            font-weight: 700;
+            animation: fadeInDown 2s ease-out;
+        }
+
+        /* ĐIỀU CHỈNH: Ép tên nằm trên 1 dòng duy nhất */
+        .names {
+            font-family: 'Dancing Script', cursive;
+            font-size: 7rem; 
+            color: #ffebcd; /* Màu vàng nhạt ấm */
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: row; /* Nằm ngang */
+            flex-wrap: nowrap; /* Không cho phép rớt dòng */
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            white-space: nowrap; /* Tuyệt đối tránh bẻ chữ */
+            text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.7), 0 0 30px #ffdab9; 
+            animation: zoomIn 2.5s ease-out;
+        }
+
+        .heart-center {
+            color: #ff4d4d; /* Màu đỏ cho trái tim giữa 2 tên */
+            font-size: 4rem; 
+            animation: pulse 1.5s infinite;
+        }
+
+        .date {
+            font-size: 3rem; 
+            font-style: italic;
+            letter-spacing: 3px;
+            font-weight: 500;
+            animation: fadeInUp 2s ease-out;
+        }
+
+        /* Hiệu ứng bay của trái tim trong suốt */
+        .floating-heart {
             position: absolute;
             bottom: -50px;
-            background: radial-gradient(circle, rgba(252, 246, 186, 0.8) 0%, rgba(252, 246, 186, 0) 70%);
-            border-radius: 50%;
-            opacity: 0;
-            animation: floatUpSway linear forwards;
+            pointer-events: none; /* Không ngăn cản các thao tác click */
+            z-index: 1;
+            /* Dùng màu trắng có độ trong suốt */
+            color: rgba(255, 255, 255, 0.5); 
+            animation: floatUp linear infinite;
         }
 
-        /* --- Keyframes --- */
-        @keyframes shine {
-            to { background-position: 200% center; }
+        /* Các Keyframe tạo hiệu ứng xuất hiện của chữ */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-70px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Bay lên và lượn lờ sang hai bên (Swaying motion) */
-     /* Bay lên và lượn lờ sang hai bên (Swaying motion) */
-        @keyframes floatUpSway {
-            0% { 
-                transform: translateY(0) translateX(0) scale(0.5); 
-                opacity: 0; 
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(70px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.4); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+            100% { transform: scale(1); }
+        }
+
+        /* Hiệu ứng bay lên ĐÃ GIẢM TỐC ĐỘ: nhẹ nhàng và chậm chạp */
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(0.6) rotate(0deg);
+                opacity: 0;
             }
-            20% { 
-                opacity: 0.8; /* <-- Đã sửa lỗi ở đây */
+            15% {
+                opacity: 0.7; /* Hiện rõ nhất khi bắt đầu bay lên */
             }
-            50% { 
-                transform: translateY(-50vh) translateX(var(--sway-x)) scale(1); 
-                opacity: 0.6; 
+            100% {
+                transform: translateY(-120vh) scale(1.4) rotate(360deg);
+                opacity: 0; /* Mờ dần khi lên tới đỉnh */
             }
-            100% { 
-                transform: translateY(-110vh) translateX(calc(var(--sway-x) * -1)) scale(1.5); 
-                opacity: 0; 
+        }
+
+        /* Responsive cho điện thoại - Tự động co chữ để vừa 1 dòng */
+        @media (max-width: 768px) {
+            .title { font-size: 2.5rem; letter-spacing: 3px; }
+            .names { 
+                font-size: 8vw; /* Dùng vw để chữ tự động co giãn vừa đúng chiều ngang điện thoại */
+                gap: 10px; 
             }
+            .heart-center { font-size: 7vw; }
+            .date { font-size: 1.8rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="vignette-overlay"></div>
-    <div class="cinematic-frame"></div>
-    <div id="bokeh-container"></div>
+    <div class="video-container">
+        <video autoplay muted loop playsinline>
+            <source src="backgr.mp4" type="video/mp4">
+            Trình duyệt của bạn không hỗ trợ thẻ video.
+        </video>
+    </div>
+    
+    <div class="overlay"></div>
 
-    <div class="main-content">
-        <div class="subtitle">Lễ Dạm Ngõ</div>
-        
-        <div class="gold-shimmer-text">Nguyễn Nam <span>&</span> Thân Hiền</div>
-        
-        <div class="date-box">
-            <div class="solar-date">20 . 09 . 2026</div>
-            <div class="lunar-date">(Tức ngày 10 tháng 08 năm Bính Ngọ)</div>
+    <div class="content">
+        <h1 class="title">Lễ Dạm Ngõ</h1>
+        <div class="names">
+            <span>Nguyễn Nam</span>
+            <span class="heart-center">❤️</span>
+            <span>Thân Hiền</span>
         </div>
-        
-        <div id="dynamic-text-wrapper">
-            <div id="dynamic-text">Sự hiện diện của quý vị là niềm vinh hạnh của gia đình.</div>
-        </div>
+        <p class="date">Ngày 20.09.2026</p>
     </div>
 
+    <div id="hearts-container"></div>
+
     <script>
-        // --- 1. HIỆU ỨNG BOKEH HỮU CƠ (LƯỢN SÓNG) ---
-        function createBokeh() {
-            const container = document.getElementById('bokeh-container');
-            const bokeh = document.createElement('div');
-            bokeh.classList.add('bokeh');
+        function createHeart() {
+            const container = document.getElementById('hearts-container');
+            const heart = document.createElement('div');
             
-            // Random kích thước điểm sáng
-            const size = Math.random() * 40 + 10;
-            bokeh.style.width = `${size}px`;
-            bokeh.style.height = `${size}px`;
+            // Biểu tượng trái tim
+            heart.innerHTML = '❤'; 
+            heart.classList.add('floating-heart');
             
-            // Random vị trí ngang
-            bokeh.style.left = `${Math.random() * 100}vw`;
+            // Random kích thước trái tim (từ 15px đến 55px)
+            const size = Math.random() * 40 + 15;
+            heart.style.fontSize = `${size}px`;
             
-            // Cài đặt độ lắc ngang (Sway) bằng CSS Variable
-            const swayAmount = (Math.random() * 100 - 50) + 'px'; 
-            bokeh.style.setProperty('--sway-x', swayAmount);
+            // Random vị trí xuất phát theo chiều ngang
+            heart.style.left = `${Math.random() * 100}vw`;
             
-            // Thời gian bay chậm rãi
-            const duration = Math.random() * 10 + 8;
-            bokeh.style.animationDuration = `${duration}s`;
+            // GIẢM TỐC ĐỘ BAY LÊN: từ 12 giây đến 22 giây để trái tim lơ lửng rất lâu
+            const duration = Math.random() * 10 + 12;
+            heart.style.animationDuration = `${duration}s`;
             
-            container.appendChild(bokeh);
+            // Random độ mờ (opacity) để tạo chiều sâu
+            heart.style.opacity = Math.random();
+
+            container.appendChild(heart);
             
+            // Xóa trái tim khỏi DOM sau khi bay xong
             setTimeout(() => {
-                bokeh.remove();
+                heart.remove();
             }, duration * 1000);
         }
 
-        // Tạo hạt liên tục
-        setInterval(createBokeh, 300);
-
-        // --- 2. HIỆU ỨNG LẤY NÉT ỐNG KÍNH (LENS FOCUS TEXT) ---
-        const messages = [
-            "Hành trình yêu thương chính thức bắt đầu...",
-            "Sự hiện diện của quý vị là niềm vinh hạnh của gia đình.",
-            "Trân trọng cảm ơn hai bên gia đình đã vun đắp cho hạnh phúc lứa đôi.",
-            "Trăm năm tình viên mãn - Bạc đầu nghĩa phu thê."
-        ];
-        
-        let msgIndex = 0;
-        const textElement = document.getElementById('dynamic-text');
-
-        setInterval(() => {
-            // Out nét
-            textElement.classList.add('focus-out');
-            
-            setTimeout(() => {
-                // Đổi nội dung khi đã mờ hẳn
-                msgIndex = (msgIndex + 1) % messages.length;
-                textElement.innerHTML = messages[msgIndex];
-                // Lấy nét trở lại
-                textElement.classList.remove('focus-out');
-            }, 1500); // Khớp thời gian với transition CSS
-
-        }, 10000);
+        // Tạo trái tim mới mỗi 100 milliseconds
+        // Dù tạo liên tục nhưng vì thời gian bay rất lâu, lượng trái tim 
+        // lơ lửng trên màn hình sẽ rất dày đặc, lung linh và chậm rãi.
+        setInterval(createHeart, 100);
     </script>
+
 </body>
 </html>
